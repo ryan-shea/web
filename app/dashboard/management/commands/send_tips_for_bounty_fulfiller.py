@@ -50,7 +50,7 @@ class Command(BaseCommand):
             is_for_bounty_fulfiller=True,
             receive_txid='',
             metadata__is_for_bounty_fulfiller_handled__isnull=True
-            ).exclude(txid='')
+            ).send_success()
         for tip in tips:
             try:
                 bounty = tip.bounty
@@ -75,6 +75,7 @@ class Command(BaseCommand):
                             # was sent with bulk payout.  send to bulk payout_ees
                             ######################################################
                             print(" - 2 ")
+                            continue; # https://gitcoincore.slack.com/archives/CAXQ7PT60/p1561387099015900?thread_ts=1561140267.081600&cid=CAXQ7PT60
                             bpts = bounty.bulk_payout_tips
                             bpts_ids = bpts.values_list('pk', flat=True)
                             bpts_total_amount = sum(bpts.values_list('amount', flat=True))
@@ -89,8 +90,10 @@ class Command(BaseCommand):
                                 cloned_tip.recipient_profile = None
                                 cloned_tip.is_for_bounty_fulfiller = False
                                 cloned_tip.username = bpt.username
+                                cloned_tip.tokenAddress = tip.tokenAddress
+                                cloned_tip.tokenName = tip.tokenName
                                 cloned_tip.emails = []
-                                cloned_tip.metadata = bpt.metadata
+                                cloned_tip.metadata = tip.metadata
                                 cloned_tip.metadata['is_clone'] = True
                                 cloned_tip.metadata['debug_info'] = f'created in order to facilitate payout of a crowdfund tip {tip.pk}'
                                 cloned_tip.save()
@@ -103,6 +106,7 @@ class Command(BaseCommand):
                             msg = f'auto assigneed on {timezone.now()} to via recipients of {bpts_ids}; as done ' \
                                   'bounty w no bountyfulfillment'
                             print("     ", msg)
+                            # TODO: email recipients of the cloned tip
                             tip.metadata['payout_comments'] = msg
                             tip.save()
                     elif bounty.status == 'cancelled':
