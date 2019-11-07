@@ -899,7 +899,7 @@ def render_new_bounty_roundup(to_email):
     from dashboard.models import Bounty
     from django.conf import settings
     subject = "The Quadratic Freelancer"
-    new_kudos_pks = [588, 151, 116]
+    new_kudos_pks = [2416, 151, 116]
     new_kudos_size_px = 150
     if settings.DEBUG and False:
         # for debugging email styles
